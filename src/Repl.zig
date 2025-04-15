@@ -20,8 +20,8 @@ pub fn start(allocator: Allocator, in: std.fs.File, out: std.fs.File) !void {
             break;
         }
         var lexer = Lexer.init(allocator, line.?);
-        var token = lexer.nextToken();
-        while (token.token_type != .EOF) : (token = lexer.nextToken()) {
+        var iter = lexer.iterator();
+        while (iter.next()) |token| {
             try stdout.print("{any}\n", .{token});
             try bw.flush();
         }

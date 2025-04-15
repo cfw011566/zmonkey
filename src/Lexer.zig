@@ -20,6 +20,22 @@ pub fn init(allocaotr: Allocator, input: []const u8) Self {
     };
 }
 
+pub const Iterator = struct {
+    lexer: *Self,
+
+    pub fn next(it: *Iterator) ?Token {
+        const token = it.lexer.nextToken();
+        if (token.token_type == .EOF) {
+            return null;
+        }
+        return token;
+    }
+};
+
+pub fn iterator(self: *Self) Iterator {
+    return Iterator{ .lexer = self };
+}
+
 pub fn nextToken(self: *Self) Token {
     self.readChar();
 

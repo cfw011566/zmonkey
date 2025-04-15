@@ -17,6 +17,14 @@ pub fn deinit(self: *Self) void {
     _ = self;
 }
 
+pub fn format(self: Self, comptime fmt: []const u8, _: std.fmt.FormatOptions, writer: anytype) !void {
+    if (fmt.len != 0) {
+        std.fmt.invalidFmtError(fmt, self);
+    }
+
+    try writer.print("Token '{s}' : {s} ({d})", .{ self.literal, @tagName(self.token_type), @intFromEnum(self.token_type) });
+}
+
 pub const TokenType = enum(u8) {
     ILLEGAL,
     EOF,
