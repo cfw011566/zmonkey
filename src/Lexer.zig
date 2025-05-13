@@ -166,6 +166,7 @@ test "test next token" {
         \\10 == 10;
         \\10 != 9;
     ;
+    // use tuples to create test pattern
     const tests = [_]struct { Token.TokenType, []const u8 }{
         .{ .LET, "let" },
         .{ .IDENT, "five" },
@@ -244,11 +245,35 @@ test "test next token" {
     };
     const allocator = std.testing.allocator;
     var lexer = Self.init(allocator, input);
-    for (tests, 0..) |tt, i| {
-        var tok = lexer.nextToken();
-        defer tok.deinit();
-        std.debug.print("Test {d}: {}\n", .{ i, tt[0] });
+    inline for (tests, 0..) |tt, i| {
+        const tok = lexer.nextToken();
+        std.debug.print("Test {d}: {}\n", .{ i, tok });
         try std.testing.expectEqual(tt[0], tok.token_type);
-        try std.testing.expect(std.mem.eql(u8, tok.literal, tt[1]));
+        try std.testing.expect(std.mem.eql(u8, tt[1], tok.literal));
+    }
+}
+
+test "test 1" {
+    const input = "=+(){},;";
+    const tests = [_]struct { Token.TokenType, []const u8 }{
+        .{ .ASSIGN, "=" },
+        .{ .PLUS, "+" },
+        .{ .LPAREN, "(" },
+        .{ .RPAREN, ")" },
+        .{ .LBRACE, "{" },
+        .{ .RBRACE, "}" },
+        .{ .COMMA, "," },
+        .{ .SEMICOLON, ";" },
+        .{ .EOF, "" },
+    };
+    const allocator = std.testing.allocator;
+    var lexer = Self.init(allocator, input);
+    var i: usize = 0;
+    var iter = lexer.iterator();
+    while (iter.next()) |tok| : (i += 1) {
+        std.debug.print("Test {d}: {}\n", .{ i, tok });
+        const tt = tests[i];
+        try std.testing.expectEqual(tt[0], tok.token_type);
+        try std.testing.expect(std.mem.eql(u8, tt[1], tok.literal));
     }
 }

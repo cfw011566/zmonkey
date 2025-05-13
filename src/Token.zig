@@ -13,9 +13,9 @@ pub fn init(token_type: TokenType, literal: []const u8) Self {
     };
 }
 
-pub fn deinit(self: *Self) void {
-    _ = self;
-}
+//pub fn deinit(self: *Self) void {
+//    _ = self;
+//}
 
 pub fn format(self: Self, comptime fmt: []const u8, _: std.fmt.FormatOptions, writer: anytype) !void {
     if (fmt.len != 0) {
@@ -65,25 +65,20 @@ pub const TokenType = enum(u8) {
     RETURN,
 };
 
-const Keyword = struct {
-    string: []const u8,
-    token_type: TokenType,
-};
-
-const keywords = [_]Keyword{
-    .{ .string = "fn", .token_type = .FUNCTION },
-    .{ .string = "let", .token_type = .LET },
-    .{ .string = "true", .token_type = .TRUE },
-    .{ .string = "false", .token_type = .FALSE },
-    .{ .string = "if", .token_type = .IF },
-    .{ .string = "else", .token_type = .ELSE },
-    .{ .string = "return", .token_type = .RETURN },
+const keywords = [_]struct { []const u8, TokenType }{
+    .{ "fn", .FUNCTION },
+    .{ "let", .LET },
+    .{ "true", .TRUE },
+    .{ "false", .FALSE },
+    .{ "if", .IF },
+    .{ "else", .ELSE },
+    .{ "return", .RETURN },
 };
 
 pub fn lookupIdentifier(literal: []const u8) TokenType {
-    for (keywords) |keyword| {
-        if (std.mem.eql(u8, literal, keyword.string)) {
-            return keyword.token_type;
+    inline for (keywords) |keyword| {
+        if (std.mem.eql(u8, literal, keyword[0])) {
+            return keyword[1];
         }
     }
     return .IDENT;
